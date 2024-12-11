@@ -27,7 +27,9 @@ while(<$fh>){
     chomp($_);
     my $line = $_;
     if($line =~ /(\d+)\|(\d+)/){
-        my @temp = [$1,$2];
+        my @temp;
+        push(@temp, $1);
+        push(@temp, $2);
         push(@ruleset, \@temp);
     }else{
         my @temp = split(/,/, $line);
@@ -52,6 +54,7 @@ foreach my $record (@records){
                         if(${$record}[$index] == ${$rule}[1]){
                             next BEGIN;
                         }else{
+                            #look where to actually push;
                             push(@middle_num, $record);
                         }
                     }
