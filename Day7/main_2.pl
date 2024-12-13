@@ -34,15 +34,16 @@ while(<$fh>){
     push(@equations, \@equation);
 }
 
-my @start_options = ([0], [1]);
+my @start_options = ([0], [1], [2]);
 my $count = 0;
 my $result = 0;
 
 AGAIN: for(my $solution_index = 0; $solution_index < scalar @solutions; $solution_index++){
     $count++;
+    say($count);
     my $solution = $solutions[$solution_index];
     my $equation = $equations[$solution_index];
-    my ($math_map, $cycle) = calc_options(\@start_options, scalar @{$equation});
+    my ($math_map, $cycle) = calc_options(\@start_options, scalar @{$equation} - 1);
     my @math = @$math_map;
     foreach my $math_parts (@math){
         my $calc = ${$equation}[0];
@@ -51,6 +52,8 @@ AGAIN: for(my $solution_index = 0; $solution_index < scalar @solutions; $solutio
                 $calc = $calc + ${$equation}[$math_index + 1];
             }elsif(${$math_parts}[$math_index] == 1){
                 $calc = $calc * ${$equation}[$math_index + 1];
+            }elsif(${$math_parts}[$math_index] == 2){
+                $calc = $calc . ${$equation}[$math_index + 1];
             }
         }
         if($calc == ${$solution}[0]){
@@ -81,7 +84,7 @@ sub calc_options{
 
         my @temp;
         foreach my $option_ref (@options){
-            for(my $adder = 0; $adder < 2; $adder++){
+            for(my $adder = 0; $adder < 3; $adder++){
                 my @more_options;
                 push(@more_options, @$option_ref);
                 push(@more_options, $adder);
