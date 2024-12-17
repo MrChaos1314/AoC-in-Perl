@@ -38,7 +38,7 @@ foreach my $zero (sort keys %zeros){
     my $row = shift(@info);
     my $column = shift(@info);
 
-    my %temp = ("$num,$row,$column" => "yes");
+    my %temp = ("$num,$row,$column" => 1);
     my %pos;
     my ($whole_ways, $amount_ways, $useless) = walker(\%temp, \%pos, $num);
 
@@ -64,7 +64,7 @@ sub get_zero_positions{
     for(my $row = 0; $row < scalar @records; $row++){
         for(my $column = 0; $column < scalar @{$records[$row]}; $column++){
             if(${$records[$row]}[$column] == 0){
-                $zero_pos{"${$records[$row]}[$column],$row,$column,none"} = "yes";
+                $zero_pos{"${$records[$row]}[$column],$row,$column"} = 1;
             }
         }
     }
@@ -88,12 +88,14 @@ sub walker{
         my $row = shift(@info);
         my $column = shift(@info);
         my $direction = shift(@info);
-        if($look_at == $num){
-            #do checks
-            check_up($num_info_ref, $pos_ref, $row, $column, $num+1, $direction);
-            check_down($num_info_ref, $pos_ref,$row, $column, $num+1, $direction);
-            check_left($num_info_ref, $pos_ref,$row, $column, $num+1, $direction);
-            check_right($num_info_ref, $pos_ref,$row, $column, $num+1, $direction);
+        for(my $occurence = 0; $occurence < $num_info{$nums}; $occurence++){
+            if($look_at == $num){
+                #do checks
+                check_up($num_info_ref, $pos_ref, $row, $column, $num+1, $direction);
+                check_down($num_info_ref, $pos_ref,$row, $column, $num+1, $direction);
+                check_left($num_info_ref, $pos_ref,$row, $column, $num+1, $direction);
+                check_right($num_info_ref, $pos_ref,$row, $column, $num+1, $direction);
+            }
         }
     }
     walker($num_info_ref, $pos_ref, $look_at + 1);
@@ -143,17 +145,11 @@ sub check_up{
     if($row - 1 >= 0 && $row - 1 < scalar @records){
         if(${$records[$row - 1]}[$column] == $needed_num){
             my $temp = $row - 1;
-            if($num_info_ref->{"${$records[$temp]}[$column],$temp,$column,up"}){
-                my $value = $num_info_ref->{"${$records[$temp]}[$column],$temp,$column,up"};
-                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column,up"} = ++$value;
+            if($num_info_ref->{"${$records[$temp]}[$column],$temp,$column"}){
+                my $value = $num_info_ref->{"${$records[$temp]}[$column],$temp,$column"};
+                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column"} = ++$value;
             }else{
-                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column,up"} = 1;
-            }
-            if($pos_ref->{"${$records[$temp]}[$column]"}){
-                my $value = $pos_ref->{${$records[$temp]}[$column]};
-                $pos_ref->{"${$records[$temp]}[$column]"} = ++$value;
-            }else{
-                $pos_ref->{"${$records[$temp]}[$column]"} = 1;
+                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column"} = 1;
             }
         }
     }
@@ -169,17 +165,11 @@ sub check_down{
     if($row + 1 >= 0 && $row + 1 < scalar @records){
         if(${$records[$row + 1]}[$column] == $needed_num){
             my $temp = $row + 1;
-            if($num_info_ref->{"${$records[$temp]}[$column],$temp,$column,down"}){
-                my $value = $num_info_ref->{"${$records[$temp]}[$column],$temp,$column,down"};
-                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column,down"} = ++$value;
+            if($num_info_ref->{"${$records[$temp]}[$column],$temp,$column"}){
+                my $value = $num_info_ref->{"${$records[$temp]}[$column],$temp,$column"};
+                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column"} = ++$value;
             }else{
-                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column,down"} = 1;
-            }
-            if($pos_ref->{${$records[$temp]}[$column]}){
-                my $value = $pos_ref->{${$records[$temp]}[$column]};
-                $pos_ref->{${$records[$temp]}[$column]} = ++$value;
-            }else{
-                $pos_ref->{${$records[$temp]}[$column]} = 1;
+                $num_info_ref->{"${$records[$temp]}[$column],$temp,$column"} = 1;
             }
         }
     }
@@ -195,17 +185,11 @@ sub check_left{
     if($column - 1 >= 0 && $column - 1 < scalar @records){
         if(${$records[$row]}[$column - 1] == $needed_num){
             my $temp = $column - 1;
-            if($num_info_ref->{"${$records[$row]}[$temp],$row,$temp,left"}){
-                my $value = $num_info_ref->{"${$records[$row]}[$temp],$row,$temp,left"};
-                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp,left"} = ++$value;
+            if($num_info_ref->{"${$records[$row]}[$temp],$row,$temp"}){
+                my $value = $num_info_ref->{"${$records[$row]}[$temp],$row,$temp"};
+                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp"} = ++$value;
             }else{
-                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp,left"} = 1;
-            }
-            if($pos_ref->{${$records[$row]}[$temp]}){
-                my $value = $pos_ref->{${$records[$row]}[$temp]};
-                $pos_ref->{${$records[$row]}[$temp]} = ++$value;
-            }else{
-                $pos_ref->{${$records[$row]}[$temp]} = 1;
+                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp"} = 1;
             }
         }
     }
@@ -221,82 +205,15 @@ sub check_right{
     if($column + 1 >= 0 && $column + 1 < scalar @records){
         if(${$records[$row]}[$column + 1] == $needed_num){
             my $temp = $column + 1;
-            if($num_info_ref->{"${$records[$row]}[$temp],$row,$temp,right"}){
-                my $value = $num_info_ref->{"${$records[$row]}[$temp],$row,$temp,right"};
-                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp,right"} = ++$value;
+            if($num_info_ref->{"${$records[$row]}[$temp],$row,$temp"}){
+                my $value = $num_info_ref->{"${$records[$row]}[$temp],$row,$temp"};
+                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp"} = ++$value;
             }else{
-                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp,right"} = 1;
-            }
-            if($pos_ref->{${$records[$row]}[$temp]}){
-                my $value = $pos_ref->{${$records[$row]}[$temp]};
-                $pos_ref->{${$records[$row]}[$temp]} = ++$value;
-            }else{
-                $pos_ref->{${$records[$row]}[$temp]} = 1;
+                $num_info_ref->{"${$records[$row]}[$temp],$row,$temp"} = 1;
             }
         }
     }
 }
-
-sub check_up_kill{
-    my $num_info_ref = shift;
-    my $row = shift;
-    my $column = shift;
-    my $needed_num = shift;
-
-    if($row - 1 >= 0 && $row - 1 < scalar @records){
-        if(${$records[$row - 1]}[$column] == $needed_num){
-            return 1;
-        }else{
-            return 0;
-        }
-    }
-}
-
-sub check_down_kill{
-    my $num_info_ref = shift;
-    my $row = shift;
-    my $column = shift;
-    my $needed_num = shift;
-
-    if($row + 1 >= 0 && $row + 1 < scalar @records){
-        if(${$records[$row + 1]}[$column] == $needed_num){
-            return 1;
-        }else{
-            return 0;
-        }
-    }
-}
-
-sub check_left_kill{
-    my $num_info_ref = shift;
-    my $row = shift;
-    my $column = shift;
-    my $needed_num = shift;
-
-    if($column - 1 >= 0 && $column - 1 < scalar @records){
-        if(${$records[$row]}[$column - 1] == $needed_num){
-            return 1;
-        }else{
-            return 0;
-        }
-    }
-}
-
-sub check_right_kill{
-    my $num_info_ref = shift;
-    my $row = shift;
-    my $column = shift;
-    my $needed_num = shift;
-
-    if($column + 1 >= 0 && $column + 1 < scalar @records){
-        if(${$records[$row]}[$column + 1] == $needed_num){
-            return 1;
-        }else{
-            return 0;
-        }
-    }
-}
-
 
 sub calc_ends{
     my $topo_info_ref = shift;
